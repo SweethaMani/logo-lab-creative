@@ -45,9 +45,6 @@ const Index = () => {
             isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           }`}
         >
-          {/* Counter */}
-          <LogoCounter />
-
           {/* Headline */}
           <div className="space-y-4">
             <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground leading-tight">
@@ -75,6 +72,9 @@ const Index = () => {
               Free forever · No signup required
             </p>
           </div>
+
+          {/* Counter */}
+          <LogoCounter />
 
           {/* Social Proof */}
           <div className="pt-8 border-t border-border/50">
