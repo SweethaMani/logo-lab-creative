@@ -1,0 +1,238 @@
+import { useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { toPng } from "html-to-image";
+import { ArrowLeft, Download, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import LogoCanvas from "@/components/LogoCanvas";
+import ColorPicker from "@/components/ColorPicker";
+import FontSelector from "@/components/FontSelector";
+import IconPicker from "@/components/IconPicker";
+import { incrementDownloadCount } from "@/lib/logoStore";
+import { toast } from "sonner";
+
+const Editor = () => {
+  const navigate = useNavigate();
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  const [text, setText] = useState("YOURLOGO");
+  const [fontSize, setFontSize] = useState(48);
+  const [fontFamily, setFontFamily] = useState("'Space Grotesk', sans-serif");
+  const [textColor, setTextColor] = useState("#1a1a1a");
+  const [icon, setIcon] = useState("◆");
+  const [iconSize, setIconSize] = useState(40);
+  const [layout, setLayout] = useState<"horizontal" | "vertical" | "icon-only">("horizontal");
+  const [letterSpacing, setLetterSpacing] = useState(0.05);
+
+  const handleDownload = useCallback(async () => {
+    if (!canvasRef.current) return;
+
+    try {
+      const dataUrl = await toPng(canvasRef.current, {
+        backgroundColor: undefined,
+        pixelRatio: 3,
+      });
+
+      const link = document.createElement("a");
+      link.download = `${text.toLowerCase().replace(/\s+/g, "-")}-logo.png`;
+      link.href = dataUrl;
+      link.click();
+
+      incrementDownloadCount();
+      toast.success("Logo downloaded! 🎉");
+    } catch (error) {
+      toast.error("Failed to download logo");
+      console.error(error);
+    }
+  }, [text]);
+
+  const handleReset = () => {
+    setText("YOURLOGO");
+    setFontSize(48);
+    setFontFamily("'Space Grotesk', sans-serif");
+    setTextColor("#1a1a1a");
+    setIcon("◆");
+    setIconSize(40);
+    setLayout("horizontal");
+    setLetterSpacing(0.05);
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-display font-medium">Back</span>
+          </button>
+          <div className="flex items-center gap-3">
+            <Button variant="outline" size="sm" onClick={handleReset}>
+              <RotateCcw className="w-4 h-4" />
+              Reset
+            </Button>
+            <Button variant="glow" size="sm" onClick={handleDownload}>
+              <Download className="w-4 h-4" />
+              Download PNG
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Preview */}
+          <div className="order-1 lg:order-2">
+            <div className="sticky top-24">
+              <div className="bg-card rounded-2xl shadow-medium border border-border overflow-hidden">
+                <div className="p-4 border-b border-border">
+                  <h2 className="font-display font-semibold text-foreground">Preview</h2>
+                </div>
+                {/* Checkered background for transparency */}
+                <div
+                  className="relative"
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(45deg, hsl(var(--muted)) 25%, transparent 25%),
+                      linear-gradient(-45deg, hsl(var(--muted)) 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, hsl(var(--muted)) 75%),
+                      linear-gradient(-45deg, transparent 75%, hsl(var(--muted)) 75%)
+                    `,
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
+                  }}
+                >
+                  <LogoCanvas
+                    ref={canvasRef}
+                    text={text}
+                    fontSize={fontSize}
+                    fontFamily={fontFamily}
+                    textColor={textColor}
+                    icon={icon}
+                    iconSize={iconSize}
+                    layout={layout}
+                    letterSpacing={letterSpacing}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="order-2 lg:order-1 space-y-6">
+            <div className="bg-card rounded-2xl shadow-soft border border-border p-6 space-y-6">
+              <h2 className="font-display font-semibold text-foreground text-lg">Customize</h2>
+
+              {/* Text Input */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground">Logo Text</label>
+                <Input
+                  value={text}
+                  onChange={(e) => setText(e.target.value.toUpperCase())}
+                  placeholder="Enter your brand name"
+                  className="bg-background border-border text-lg font-display"
+                />
+              </div>
+
+              {/* Layout */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground">Layout</label>
+                <div className="flex gap-2">
+                  {(["horizontal", "vertical", "icon-only"] as const).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => setLayout(l)}
+                      className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+                        layout === l
+                          ? "bg-foreground text-background"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      }`}
+                    >
+                      {l === "icon-only" ? "Icon" : l.charAt(0).toUpperCase() + l.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font */}
+              <FontSelector value={fontFamily} onChange={setFontFamily} />
+
+              {/* Font Size */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground">
+                  Font Size: {fontSize}px
+                </label>
+                <Slider
+                  value={[fontSize]}
+                  onValueChange={([v]) => setFontSize(v)}
+                  min={24}
+                  max={120}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Letter Spacing */}
+              <div className="space-y-3">
+                <label className="text-sm font-medium text-foreground">
+                  Letter Spacing: {letterSpacing.toFixed(2)}em
+                </label>
+                <Slider
+                  value={[letterSpacing * 100]}
+                  onValueChange={([v]) => setLetterSpacing(v / 100)}
+                  min={-10}
+                  max={30}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Color */}
+              <ColorPicker value={textColor} onChange={setTextColor} label="Color" />
+
+              {/* Icon */}
+              <IconPicker value={icon} onChange={setIcon} />
+
+              {/* Icon Size */}
+              {icon && (
+                <div className="space-y-3">
+                  <label className="text-sm font-medium text-foreground">
+                    Icon Size: {iconSize}px
+                  </label>
+                  <Slider
+                    value={[iconSize]}
+                    onValueChange={([v]) => setIconSize(v)}
+                    min={20}
+                    max={100}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Download Section */}
+            <div className="bg-card rounded-2xl shadow-soft border border-border p-6">
+              <div className="text-center space-y-4">
+                <h3 className="font-display font-semibold text-foreground">Ready to ship?</h3>
+                <p className="text-muted-foreground text-sm">
+                  Download your logo as a transparent PNG, perfect for any background.
+                </p>
+                <Button variant="hero" className="w-full" onClick={handleDownload}>
+                  <Download className="w-5 h-5" />
+                  Finish & Download
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Editor;
