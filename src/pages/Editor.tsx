@@ -16,7 +16,7 @@ const Editor = () => {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
 
-  const [text, setText] = useState("YOURLOGO");
+  const [text, setText] = useState("YourLogo");
   const [fontSize, setFontSize] = useState(48);
   const [fontFamily, setFontFamily] = useState("'Space Grotesk', sans-serif");
   const [textColor, setTextColor] = useState("#1a1a1a");
@@ -24,6 +24,9 @@ const Editor = () => {
   const [iconSize, setIconSize] = useState(40);
   const [layout, setLayout] = useState<"horizontal" | "vertical" | "icon-only">("horizontal");
   const [letterSpacing, setLetterSpacing] = useState(0.05);
+  const [isUppercase, setIsUppercase] = useState(false);
+
+  const displayText = isUppercase ? text.toUpperCase() : text;
 
   const handleDownload = useCallback(async () => {
     if (!canvasRef.current) return;
@@ -35,7 +38,7 @@ const Editor = () => {
       });
 
       const link = document.createElement("a");
-      link.download = `${text.toLowerCase().replace(/\s+/g, "-")}-logo.png`;
+      link.download = `${displayText.toLowerCase().replace(/\s+/g, "-")}-logo.png`;
       link.href = dataUrl;
       link.click();
 
@@ -48,7 +51,7 @@ const Editor = () => {
   }, [text]);
 
   const handleReset = () => {
-    setText("YOURLOGO");
+    setText("YourLogo");
     setFontSize(48);
     setFontFamily("'Space Grotesk', sans-serif");
     setTextColor("#1a1a1a");
@@ -56,6 +59,7 @@ const Editor = () => {
     setIconSize(40);
     setLayout("horizontal");
     setLetterSpacing(0.05);
+    setIsUppercase(false);
   };
 
   return (
@@ -108,7 +112,7 @@ const Editor = () => {
                 >
                   <LogoCanvas
                     ref={canvasRef}
-                    text={text}
+                    text={displayText}
                     fontSize={fontSize}
                     fontFamily={fontFamily}
                     textColor={textColor}
@@ -132,10 +136,21 @@ const Editor = () => {
                 <label className="text-sm font-medium text-foreground">Logo Text</label>
                 <Input
                   value={text}
-                  onChange={(e) => setText(e.target.value.toUpperCase())}
+                  onChange={(e) => setText(e.target.value)}
                   placeholder="Enter your brand name"
                   className="bg-background border-border text-lg font-display"
                 />
+                <button
+                  onClick={() => setIsUppercase(!isUppercase)}
+                  className={`w-full py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                    isUppercase
+                      ? "bg-foreground text-background"
+                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  <span className="text-xs">Aa</span>
+                  {isUppercase ? "UPPERCASE ON" : "Uppercase off"}
+                </button>
               </div>
 
               {/* Layout */}
