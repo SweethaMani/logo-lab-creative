@@ -25,7 +25,7 @@ const Index = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-center">
           <div className="flex items-center gap-2">
             <span className="text-2xl">◆</span>
-            <span className="font-display font-bold text-xl text-foreground">logomkr</span>
+            <span className="font-display font-bold text-xl text-foreground">LogoMaker</span>
           </div>
         </div>
       </header>
