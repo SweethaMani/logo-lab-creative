@@ -22,19 +22,11 @@ const Index = () => {
 
       {/* Header */}
       <header className="relative z-10 border-b border-border/50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-center">
           <div className="flex items-center gap-2">
             <span className="text-2xl">◆</span>
             <span className="font-display font-bold text-xl text-foreground">logomkr</span>
           </div>
-          <a
-            href="https://www.ycombinator.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Built for YC founders
-          </a>
         </div>
       </header>
 
@@ -75,16 +67,6 @@ const Index = () => {
 
           {/* Counter */}
           <LogoCounter />
-
-          {/* Social Proof */}
-          <div className="pt-8 border-t border-border/50">
-            <p className="text-sm text-muted-foreground mb-4">Trusted by founders at</p>
-            <div className="flex items-center justify-center gap-8 opacity-50">
-              <span className="font-display font-bold text-foreground">Y Combinator</span>
-              <span className="font-display font-bold text-foreground">Stripe</span>
-              <span className="font-display font-bold text-foreground">Vercel</span>
-            </div>
-          </div>
         </div>
       </main>
 
