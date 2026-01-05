@@ -6,3 +6,5 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
+
+Link for the logo maker: https://easylogomaker.lovable.app/
