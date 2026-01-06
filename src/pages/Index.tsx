@@ -42,12 +42,14 @@ const Index = () => {
             <h1 className="text-3xl md:text-5xl font-display font-bold text-foreground leading-tight">
               Create a professional logo in under 10 seconds.
             </h1>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-              No design skills. No signup. Just type your brand name.
-            </p>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-              Generate clean, modern logos—ready to use anywhere.
-            </p>
+            <div className="space-y-2">
+              <p className="text-xl md:text-2xl font-medium text-foreground/90">
+                No design skills. No signup. Just type your brand name.
+              </p>
+              <p className="text-lg md:text-xl text-primary font-medium">
+                Generate clean, modern logos—ready to use anywhere.
+              </p>
+            </div>
             <div className="text-2xl md:text-3xl font-display font-bold text-gradient">
               <TypewriterText text="Try LogoMaker" delay={120} />
             </div>
