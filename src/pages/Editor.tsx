@@ -1,10 +1,16 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { toPng, toJpeg, toSvg } from "html-to-image";
-import { ArrowLeft, Download, RotateCcw } from "lucide-react";
+import { ArrowLeft, Download, RotateCcw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import LogoCanvas from "@/components/LogoCanvas";
 import ColorPicker from "@/components/ColorPicker";
 import FontSelector from "@/components/FontSelector";
@@ -119,10 +125,30 @@ const Editor = () => {
               <RotateCcw className="w-4 h-4" />
               Reset
             </Button>
-            <Button variant="glow" size="sm" onClick={handleDownload}>
-              <Download className="w-4 h-4" />
-              Download {downloadFormat.toUpperCase()}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="glow" size="sm">
+                  <Download className="w-4 h-4" />
+                  Download
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {formatOptions.map((format) => (
+                  <DropdownMenuItem
+                    key={format.value}
+                    onClick={() => {
+                      setDownloadFormat(format.value);
+                      setTimeout(() => handleDownload(), 0);
+                    }}
+                    className="flex flex-col items-start"
+                  >
+                    <span className="font-medium">{format.label}</span>
+                    <span className="text-xs text-muted-foreground">{format.description}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
