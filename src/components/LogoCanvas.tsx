@@ -7,16 +7,17 @@ interface LogoCanvasProps {
   textColor: string;
   icon?: string;
   iconSize: number;
+  iconColor: string;
   layout: "horizontal" | "vertical" | "icon-only";
   letterSpacing: number;
 }
 
 const LogoCanvas = forwardRef<HTMLDivElement, LogoCanvasProps>(
-  ({ text, fontSize, fontFamily, textColor, icon, iconSize, layout, letterSpacing }, ref) => {
+  ({ text, fontSize, fontFamily, textColor, icon, iconSize, iconColor, layout, letterSpacing }, ref) => {
     const renderContent = () => {
       if (layout === "icon-only" && icon) {
         return (
-          <span style={{ fontSize: iconSize }} className="leading-none">
+          <span style={{ fontSize: iconSize, color: iconColor }} className="leading-none">
             {icon}
           </span>
         );
@@ -26,7 +27,7 @@ const LogoCanvas = forwardRef<HTMLDivElement, LogoCanvasProps>(
         return (
           <div className="flex flex-col items-center gap-2">
             {icon && (
-              <span style={{ fontSize: iconSize }} className="leading-none">
+              <span style={{ fontSize: iconSize, color: iconColor }} className="leading-none">
                 {icon}
               </span>
             )}
@@ -48,7 +49,7 @@ const LogoCanvas = forwardRef<HTMLDivElement, LogoCanvasProps>(
       return (
         <div className="flex items-center gap-3">
           {icon && (
-            <span style={{ fontSize: iconSize }} className="leading-none">
+            <span style={{ fontSize: iconSize, color: iconColor }} className="leading-none">
               {icon}
             </span>
           )}

@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import LogoCounter from "@/components/LogoCounter";
+import TypewriterText from "@/components/TypewriterText";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -38,42 +38,67 @@ const Index = () => {
           }`}
         >
           {/* Headline */}
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-6xl font-display font-bold text-foreground leading-tight">
-              Ship your brand
-              <br />
-              <span className="text-gradient">in seconds</span>
+          <div className="space-y-6">
+            <h1 className="text-3xl md:text-5xl font-display font-bold text-foreground leading-tight">
+              Create a professional logo in under 10 seconds.
             </h1>
-            <p className="text-lg text-muted-foreground max-w-md mx-auto">
-              The fastest way to create a logo for your startup. No design skills needed. Just vibes.
+            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+              No design skills. No signup. Just type your brand name.
             </p>
+            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+              Generate clean, modern logos—ready to use anywhere.
+            </p>
+            <div className="text-2xl md:text-3xl font-display font-bold text-gradient">
+              <TypewriterText text="Try LogoMaker" delay={120} />
+            </div>
           </div>
 
           {/* CTA */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             <Button
               variant="hero"
               size="xl"
               onClick={() => navigate("/editor")}
-              className="group"
+              className="group hover:scale-105 hover:shadow-glow transition-all duration-300"
             >
-              <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-              Click to make a logo
+              Make a logo in seconds
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Button>
-            <p className="text-sm text-muted-foreground">
-              Free forever · No signup required
-            </p>
+            
+            {/* Features */}
+            <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground">
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-primary"></span>
+                Live demo — try it now
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-primary"></span>
+                No account needed
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-primary"></span>
+                Instant preview
+              </span>
+            </div>
           </div>
-
-          {/* Counter */}
-          <LogoCounter />
         </div>
       </main>
 
       {/* Footer */}
       <footer className="relative z-10 border-t border-border/50 py-6">
-        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          Made with ◆ for the next generation of founders
+        <div className="container mx-auto px-4 text-center text-sm text-muted-foreground space-y-2">
+          <p>Made with ◆ by Lovable · Logo appears instantly</p>
+          <p>
+            GitHub:{" "}
+            <a
+              href="https://github.com/SweethaMani"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground hover:text-primary transition-colors underline"
+            >
+              SweethaMani
+            </a>
+          </p>
         </div>
       </footer>
     </div>
