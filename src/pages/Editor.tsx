@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { toPng } from "html-to-image";
+import { toPng, toJpeg, toSvg } from "html-to-image";
 import { ArrowLeft, Download, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,8 @@ import IconPicker from "@/components/IconPicker";
 import { incrementDownloadCount } from "@/lib/logoStore";
 import { toast } from "sonner";
 
+type ImageFormat = "png" | "jpg" | "svg" | "webp";
+
 const Editor = () => {
   const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -22,9 +24,11 @@ const Editor = () => {
   const [textColor, setTextColor] = useState("#1a1a1a");
   const [icon, setIcon] = useState("◆");
   const [iconSize, setIconSize] = useState(40);
+  const [iconColor, setIconColor] = useState("#1a1a1a");
   const [layout, setLayout] = useState<"horizontal" | "vertical" | "icon-only">("horizontal");
   const [letterSpacing, setLetterSpacing] = useState(0.05);
   const [isUppercase, setIsUppercase] = useState(false);
+  const [downloadFormat, setDownloadFormat] = useState<ImageFormat>("png");
 
   const displayText = isUppercase ? text.toUpperCase() : text;
 
@@ -32,13 +36,40 @@ const Editor = () => {
     if (!canvasRef.current) return;
 
     try {
-      const dataUrl = await toPng(canvasRef.current, {
+      let dataUrl: string;
+      let extension: string = downloadFormat;
+
+      const options = {
         backgroundColor: undefined,
         pixelRatio: 3,
-      });
+      };
+
+      switch (downloadFormat) {
+        case "jpg":
+          dataUrl = await toJpeg(canvasRef.current, { ...options, quality: 0.95, backgroundColor: "#ffffff" });
+          break;
+        case "svg":
+          dataUrl = await toSvg(canvasRef.current, options);
+          break;
+        case "webp":
+          // html-to-image doesn't have native webp, so we convert from png
+          const pngData = await toPng(canvasRef.current, options);
+          const img = new Image();
+          img.src = pngData;
+          await new Promise((resolve) => (img.onload = resolve));
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          ctx?.drawImage(img, 0, 0);
+          dataUrl = canvas.toDataURL("image/webp", 0.95);
+          break;
+        default:
+          dataUrl = await toPng(canvasRef.current, options);
+      }
 
       const link = document.createElement("a");
-      link.download = `${displayText.toLowerCase().replace(/\s+/g, "-")}-logo.png`;
+      link.download = `${displayText.toLowerCase().replace(/\s+/g, "-")}-logo.${extension}`;
       link.href = dataUrl;
       link.click();
 
@@ -48,7 +79,7 @@ const Editor = () => {
       toast.error("Failed to download logo");
       console.error(error);
     }
-  }, [text]);
+  }, [displayText, downloadFormat]);
 
   const handleReset = () => {
     setText("YourLogo");
@@ -57,10 +88,19 @@ const Editor = () => {
     setTextColor("#1a1a1a");
     setIcon("◆");
     setIconSize(40);
+    setIconColor("#1a1a1a");
     setLayout("horizontal");
     setLetterSpacing(0.05);
     setIsUppercase(false);
+    setDownloadFormat("png");
   };
+
+  const formatOptions: { value: ImageFormat; label: string; description: string }[] = [
+    { value: "png", label: "PNG", description: "Transparent background" },
+    { value: "jpg", label: "JPG", description: "White background" },
+    { value: "svg", label: "SVG", description: "Vector format" },
+    { value: "webp", label: "WebP", description: "Modern format" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -81,7 +121,7 @@ const Editor = () => {
             </Button>
             <Button variant="glow" size="sm" onClick={handleDownload}>
               <Download className="w-4 h-4" />
-              Download PNG
+              Download {downloadFormat.toUpperCase()}
             </Button>
           </div>
         </div>
@@ -118,6 +158,7 @@ const Editor = () => {
                     textColor={textColor}
                     icon={icon}
                     iconSize={iconSize}
+                    iconColor={iconColor}
                     layout={layout}
                     letterSpacing={letterSpacing}
                   />
@@ -206,11 +247,16 @@ const Editor = () => {
                 />
               </div>
 
-              {/* Color */}
-              <ColorPicker value={textColor} onChange={setTextColor} label="Color" />
+              {/* Text Color */}
+              <ColorPicker value={textColor} onChange={setTextColor} label="Text Color" />
 
               {/* Icon */}
               <IconPicker value={icon} onChange={setIcon} />
+
+              {/* Icon Color */}
+              {icon && (
+                <ColorPicker value={iconColor} onChange={setIconColor} label="Icon Color" />
+              )}
 
               {/* Icon Size */}
               {icon && (
@@ -232,14 +278,29 @@ const Editor = () => {
 
             {/* Download Section */}
             <div className="bg-card rounded-2xl shadow-soft border border-border p-6">
-              <div className="text-center space-y-4">
-                <h3 className="font-display font-semibold text-foreground">Ready to ship?</h3>
-                <p className="text-muted-foreground text-sm">
-                  Download your logo as a transparent PNG, perfect for any background.
-                </p>
+              <div className="space-y-4">
+                <h3 className="font-display font-semibold text-foreground">Download Format</h3>
+                <div className="grid grid-cols-2 gap-2">
+                  {formatOptions.map((format) => (
+                    <button
+                      key={format.value}
+                      onClick={() => setDownloadFormat(format.value)}
+                      className={`p-3 rounded-lg text-left transition-all ${
+                        downloadFormat === format.value
+                          ? "bg-foreground text-background"
+                          : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                      }`}
+                    >
+                      <div className="font-medium">{format.label}</div>
+                      <div className={`text-xs ${downloadFormat === format.value ? "text-background/70" : "text-muted-foreground"}`}>
+                        {format.description}
+                      </div>
+                    </button>
+                  ))}
+                </div>
                 <Button variant="hero" className="w-full" onClick={handleDownload}>
                   <Download className="w-5 h-5" />
-                  Finish & Download
+                  Finish & Download {downloadFormat.toUpperCase()}
                 </Button>
               </div>
             </div>
